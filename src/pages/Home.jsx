@@ -5,10 +5,9 @@ import {
   getProductsByCategory,
 } from "../services/api";
 import ProductCard from "../components/ProductCard";
-import { MdCategory } from "react-icons/md";
+import { MdCategory, MdChevronLeft, MdChevronRight } from "react-icons/md";
 import { useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-
 
 function Home() {
   const [products, setProducts] = useState([]);
@@ -17,6 +16,10 @@ function Home() {
   const [sortOption, setSortOption] = useState("");
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const productsPerPage = 8; // Adjust for mobile/desktop, can make dynamic if needed
 
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
@@ -35,6 +38,7 @@ function Home() {
       .then((data) => {
         setProducts(data);
         setLoading(false);
+        setCurrentPage(1); // Reset to first page on category change
       })
       .catch((error) => {
         console.error("Error fetching products:", error);
@@ -73,20 +77,31 @@ function Home() {
 
       setFilteredProducts(temp);
       setLoading(false);
+      setCurrentPage(1); // Reset to first page on filter change
     }, 300);
 
     return () => clearTimeout(timer);
   }, [products, searchQuery, sortOption]);
 
-  return (
+  // Calculate pagination
+  const indexOfLast = currentPage * productsPerPage;
+  const indexOfFirst = indexOfLast - productsPerPage;
+  const currentProducts = filteredProducts.slice(indexOfFirst, indexOfLast);
+  const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
 
+  const handlePageChange = (newPage) => {
+    if (newPage < 1 || newPage > totalPages) return;
+    setCurrentPage(newPage);
+    window.scrollTo({ top: 0, behavior: "smooth" }); // Scroll up on page change
+  };
+
+  return (
     <motion.div
-    initial={{ opacity: 0 }}
-    animate={{ opacity: 1 }}
-    transition={{ duration: 0.4 }}
-    className="p-4 max-w-7xl mx-auto"
-  >
-    <div className="p-4 max-w-7xl mx-auto">
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.4 }}
+      className="p-4 max-w-7xl mx-auto"
+    >
       <h1 className="text-3xl font-bold mb-6 text-center text-blue-800">
         🛍️ Trendy Products
       </h1>
@@ -147,14 +162,60 @@ function Home() {
       ) : filteredProducts.length === 0 ? (
         <div className="text-center text-gray-500">No products found.</div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5">
-          {filteredProducts.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
-      )}
-    </div>
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+            {currentProducts.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
 
+          {/* Pagination Controls */}
+          <div className="flex justify-center items-center mt-8 space-x-3">
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className={`p-2 rounded-full ${
+                currentPage === 1
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-blue-600 hover:bg-blue-100"
+              }`}
+              aria-label="Previous Page"
+            >
+              <MdChevronLeft size={28} />
+            </button>
+
+            {[...Array(totalPages)].map((_, i) => {
+              const pageNum = i + 1;
+              return (
+                <button
+                  key={pageNum}
+                  onClick={() => handlePageChange(pageNum)}
+                  className={`px-4 py-2 rounded-md font-medium ${
+                    currentPage === pageNum
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-100 hover:bg-blue-200"
+                  }`}
+                >
+                  {pageNum}
+                </button>
+              );
+            })}
+
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className={`p-2 rounded-full ${
+                currentPage === totalPages
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-blue-600 hover:bg-blue-100"
+              }`}
+              aria-label="Next Page"
+            >
+              <MdChevronRight size={28} />
+            </button>
+          </div>
+        </>
+      )}
     </motion.div>
   );
 }
