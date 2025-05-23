@@ -33,8 +33,7 @@ An attractive, responsive **E-Commerce Frontend** built using **React + Vite**, 
 ### ✅ 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/ecommerce-app.git
-cd ecommerce-app
+git clone https://github.com/AbhijitShirsath-460/ecommerce-clone.git
 ```
 
 ### ✅ 2. Install dependencies
@@ -110,11 +109,7 @@ Publish `/dist` to Netlify.
 
 Pull requests are welcome! If you'd like to improve features, fix bugs or add enhancements, feel free to fork and submit a PR.
 
-## 📄 License
-
-This project is open source and available under the [MIT License](LICENSE).
-
 ## 🙋 Contact
 
-- GitHub: [your-username](https://github.com/AbhijitShirsath-460)
+- GitHub: (https://github.com/AbhijitShirsath-460)
 - Live: [https://my-store-clone.netlify.app](https://my-store-clone.netlify.app)
